@@ -24,8 +24,7 @@ function codeBlockTemplate(exampleRun, exampleSrc, langClass, options) {
   </div>`;
   return `
 <div class="example">
-  <div class="run">${exampleRun}</div>
-  ${!options.compiled && viewSource}
+  <div class="run">${exampleRun}</div>${!options.compiled ? viewSource : ''}
 </div>`;
 }
 
