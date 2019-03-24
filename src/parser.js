@@ -4,6 +4,7 @@ const frontMatter = require('front-matter');
 const Prism = require('node-prismjs');
 const Remarkable = require('remarkable');
 const { escapeHtml } = require('remarkable/lib/common/utils');
+const qs = require('qs');
 
 const md = new Remarkable();
 
@@ -15,15 +16,16 @@ const md = new Remarkable();
  * @param   {string} langClass  CSS class for the code block
  * @returns {string}            Code block with souce and run code
  */
-function codeBlockTemplate(exampleRun, exampleSrc, langClass) {
-  return `
-<div class="example">
-  <div class="run">${exampleRun}</div>
-  <div class="source">
+function codeBlockTemplate(exampleRun, exampleSrc, langClass, options) {
+  const viewSource = `<div class="source">
     <pre${!langClass ? '' : ` class="${langClass}"`}><code${!langClass ? '' : ` class="${langClass}"`}>
       ${exampleSrc}
     </code></pre>
-  </div>
+  </div>`;
+  return `
+<div class="example">
+  <div class="run">${exampleRun}</div>
+  ${!options.compiled && viewSource}
 </div>`;
 }
 
@@ -33,9 +35,10 @@ function codeBlockTemplate(exampleRun, exampleSrc, langClass) {
  * @param   {String}   lang       - Language indicated in the code block
  * @param   {String}   langPrefix - Language prefix
  * @param   {Function} highlight  - Code highlight function
+ * @param   {string|null} options
  * @returns {String}                Code block with souce and run code
  */
-function parseCodeBlock(code, lang, langPrefix, highlight) {
+function parseCodeBlock(code, lang, langPrefix, highlight, options) {
   let codeBlock = escapeHtml(code);
 
   if (highlight) {
@@ -52,7 +55,7 @@ function parseCodeBlock(code, lang, langPrefix, highlight) {
     .replace(/(\n)/g, '{"\\n"}')
     .replace(/class=/g, 'className=');
 
-  return codeBlockTemplate(jsx, codeBlock, langClass);
+  return codeBlockTemplate(jsx, codeBlock, langClass, options ? qs.parse(options, { delimiter: ';' }) : {});
 }
 
 /**
@@ -95,7 +98,8 @@ function parseMarkdown(markdown) {
         tokens[idx].content,
         codeTags[codeTags.length - 1],
         opts.langPrefix,
-        opts.highlight
+        opts.highlight,
+        codeTags.length > 2 ? codeTags[codeTags.length - 2] : null
       );
     };
 
