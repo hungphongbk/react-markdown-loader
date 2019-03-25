@@ -23,7 +23,7 @@ function codeBlockTemplate(exampleRun, exampleSrc, langClass, options) {
     </code></pre>
   </div>`;
   return `
-<div class="example">
+<div class="example ${options.compiled ? 'exampleViewCode' : ''}">
   <div class="run">${exampleRun}</div>${!options.compiled ? viewSource : ''}
 </div>`;
 }
