@@ -19,7 +19,8 @@ const except = require('except');
 module.exports = function build(markdown) {
   let doImports = 'import React from \'react\';\n';
   const imports = markdown.attributes.imports || {};
-  const jsx = markdown.html.replace(/class=/g, 'className=');
+  const jsx = markdown.html.replace(/class=/g, 'className='),
+    jsxToc = markdown.toc.replace(/class=/g, 'className=');
 
   const frontMatterAttributes = except(markdown.attributes, 'imports');
 
@@ -37,8 +38,9 @@ ${doImports}
 export const attributes = ${JSON.stringify(camelize(frontMatterAttributes))};
 export default function() {
   return (
-    <div>
-      ${jsx}
+    <div className="md">
+      <div className="md__content">${jsx}</div>
+      <div className="md__toc">${jsxToc}</div>
     </div>
   );
 };`;

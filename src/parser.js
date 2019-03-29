@@ -5,6 +5,8 @@ const Prism = require('node-prismjs');
 const Remarkable = require('remarkable');
 const { escapeHtml } = require('remarkable/lib/common/utils');
 const qs = require('qs');
+const mdToc = require('markdown-toc');
+const {anchors}=require('./plugins');
 
 const md = new Remarkable();
 
@@ -16,7 +18,8 @@ const md = new Remarkable();
  * @param   {string} langClass  CSS class for the code block
  * @returns {string}            Code block with souce and run code
  */
-function codeBlockTemplate(exampleRun, exampleSrc, langClass, options) {
+function codeBlockTemplate(exampleRun, exampleSrc, langClass, _options) {
+  const options = _options || {};
   const viewSource = `<div class="source">
     <pre${!langClass ? '' : ` class="${langClass}"`}><code${!langClass ? '' : ` class="${langClass}"`}>
       ${exampleSrc}
@@ -89,6 +92,7 @@ function parseMarkdown(markdown) {
     };
 
     md.set(options);
+    md.use(anchors);
 
     md.renderer.rules.fence_custom.render = (tokens, idx, opts) => {
       // gets tags applied to fence blocks ```react html
@@ -104,7 +108,8 @@ function parseMarkdown(markdown) {
 
     try {
       html = md.render(markdown.body);
-      return resolve({ html, attributes: markdown.attributes });
+      const toc = mdToc(markdown.body).content;
+      return resolve({ html, toc, attributes: markdown.attributes });
     } catch (err) {
       return reject(err);
     }
