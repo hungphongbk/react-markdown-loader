@@ -6,7 +6,7 @@ const Remarkable = require('remarkable');
 const { escapeHtml } = require('remarkable/lib/common/utils');
 const qs = require('qs');
 const mdToc = require('markdown-toc');
-const {anchors}=require('./plugins');
+const { anchors } = require('./plugins');
 
 const md = new Remarkable();
 
@@ -108,7 +108,7 @@ function parseMarkdown(markdown) {
 
     try {
       html = md.render(markdown.body);
-      const toc = md.render(mdToc(markdown.body).content);
+      const toc = md.render(mdToc(markdown.body, { firsth1: false }).content);
       return resolve({ html, toc, attributes: markdown.attributes });
     } catch (err) {
       return reject(err);
